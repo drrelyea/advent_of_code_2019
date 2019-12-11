@@ -2,7 +2,7 @@
 # the input codes might all be linked
 # omg they might want a rewind capability... AAAAAAA
 
-with open('/Users/relyea/data/input.txt') as input_file:
+with open('/Users/relyea/data/opcode_full_input.txt') as input_file:
     inpstring = input_file.readlines()
 
 inpstring = inpstring[0].strip()
@@ -30,11 +30,12 @@ opcode_argtypes = {
 }
 
 class get_opcode_output(object):
-    def __init__(self, input_code, thephase):
+    def __init__(self, input_code, thephase=None):
         self.current_index = 0
         self.input_code = input_code # this might share state between machines
-        self.thephase = thephase
-        self.input_values = [thephase] # this may share state betwen machines
+        self.input_values = []
+        if thephase is not None:
+            self.input_values.append(thephase) # this may share state betwen machines
         self.input_index = 0
         self.output_values = []
         self.output_index = -1
@@ -86,36 +87,36 @@ class get_opcode_output(object):
                 self.current_index = self.current_index + len(opcode_argtypes[action_number]) + 1
                 if action_number == '03':
                     self.input_code[argument_list[0]] = self.input_values[self.input_index]
-                    self.action_list.append(('INPUT', argument_list[0], self.input_index, self.input_code[argument_list[0]]))
+                    # self.action_list.append(('INPUT', argument_list[0], self.input_index, self.input_code[argument_list[0]]))
                     self.input_index += 1
                 elif action_number == '04':
                     self.output_index += 1
                     self.output_values.append(argument_list[0])
-                    self.action_list.append(('OUTPUT', self.output_index, argument_list[0]))
-                    # return self.output_values[self.output_index]
-                    print('OUTPUT: '+str(argument_list[0]))
+                    # self.action_list.append(('OUTPUT', self.output_index, argument_list[0]))
+                    return self.output_values[self.output_index]
+                    # print('OUTPUT: '+str(argument_list[0]))
                 elif action_number == '01':
                     self.input_code[argument_list[2]] = argument_list[0] + argument_list[1]
-                    self.action_list.append(('ICWRITE_SUM', argument_list[2], self.input_code[argument_list[2]]))
+                    # self.action_list.append(('ICWRITE_SUM', argument_list[2], self.input_code[argument_list[2]]))
                 elif action_number == '02':
                     self.input_code[argument_list[2]] = argument_list[0] * argument_list[1]
-                    self.action_list.append(('ICWRITE_PRODUCT', argument_list[2], self.input_code[argument_list[2]]))
+                    # self.action_list.append(('ICWRITE_PRODUCT', argument_list[2], self.input_code[argument_list[2]]))
                 elif action_number == '07':
                     self.input_code[argument_list[2]] = int(argument_list[0] < argument_list[1])
-                    self.action_list.append(('ICWRITE_COMPARISON_GT', argument_list[2], self.input_code[argument_list[2]]))
+                    # self.action_list.append(('ICWRITE_COMPARISON_GT', argument_list[2], self.input_code[argument_list[2]]))
                 elif action_number == '08':
                     self.input_code[argument_list[2]] = int(argument_list[0] == argument_list[1])
-                    self.action_list.append(('ICWRITE_COMPARISON_EQ', argument_list[2], self.input_code[argument_list[2]]))
+                    # self.action_list.append(('ICWRITE_COMPARISON_EQ', argument_list[2], self.input_code[argument_list[2]]))
                 elif action_number == '05':
                     if argument_list[0] != 0:
-                        self.action_list.append(('INDEX_CHANGE_NEZERO', self.current_index, argument_list[1]))
+                        # self.action_list.append(('INDEX_CHANGE_NEZERO', self.current_index, argument_list[1]))
                         self.current_index = argument_list[1]
                 elif action_number == '06':
                     if argument_list[0] == 0:
-                        self.action_list.append(('INDEX_CHANGE_EQZERO', self.current_index, argument_list[1]))
+                        # self.action_list.append(('INDEX_CHANGE_EQZERO', self.current_index, argument_list[1]))
                         self.current_index = argument_list[1]
                 elif action_number == '09':
-                    self.action_list.append(('RELATIVE_BASE_CHANGE', self.relative_base, argument_list[0]))
+                    # self.action_list.append(('RELATIVE_BASE_CHANGE', self.relative_base, argument_list[0]))
                     self.relative_base += argument_list[0]
 
                 else:
@@ -124,7 +125,7 @@ class get_opcode_output(object):
                     return -999
             # print('RESULT: ', ','.join([str(a) for a in self.input_code]))
 
-op = get_opcode_output(list(copy(list(amplist_orig)))+[0]*100000,2)
+op = get_opcode_output(list(copy(list(amplist_orig)))+[0]*100000,1)
 
 # themax = 0
 # from itertools import permutations 

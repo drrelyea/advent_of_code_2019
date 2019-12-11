@@ -78,6 +78,26 @@ class get_opcode_output(object):
             output_arguments.append(the_argument)
         return output_arguments
     
+    def rewind_last_action():
+        # I have no idea whether, at the end of the rewind, whether we'd need to 
+        # go one space ahead of NOW, or go back to the prior instruction
+        # I have a feeling they'll want infinite rewind, so I'll make it so it bounces forward now
+        last_action = self.action_list[-1]
+        if last_action[0] == '1':
+            self.input_code[last_action[1]] = last_action[2]
+        elif last_action[0] == '2':
+            self.input_code[last_action[1]] = last_action[2]
+        elif last_action[0] == '7':
+            self.input_code[last_action[1]] = last_action[2]
+        elif last_action[0] == '8':
+            self.input_code[last_action[1]] = last_action[2]
+        elif last_action[0] == '5':
+            if len(last_action) > 2:
+                self.current_index = last_action[2] # this is actually the *next* action after that one
+        elif last_action[0] == '6':
+            if len(last_action) > 2:
+                self.current_index = last_action[2] # this is actually the *next* action after that one
+    
     def __call__(self, inputlist: list):
         self.input_values += inputlist
         input_inst = 0
@@ -85,9 +105,15 @@ class get_opcode_output(object):
             opcode = str(self.input_code[self.current_index])
             action_number = opcode[-1]
             if action_number == '9':
-                self.action_list.append(('END'))
+                self.action_list.append(('9'))
                 # print('DONE')
                 return (100,100)
+            elif action_number == 'R':
+                self.rewind_last_action()
+                # no idea whether we'll need to skip the action or not
+                # also no idea whether we'll then go after that action and skip this R or something else
+                # I think R won't be an action but rather an input value, but how that works, I have no idea
+                self.current_index = self.current_index + next_instruction_index_offset[action_number]
             else:
                 argument_list = self.parseArguments(opcode, action_number)
                 modifyIndex = self.input_code[self.current_index + to_modify_index_offset[action_number]]
@@ -95,34 +121,38 @@ class get_opcode_output(object):
                 # print('TEST: ', self.current_index, opcode, argument_list[0], argument_list[1], modifyIndex)
                 if action_number == '3':
                     self.input_code[modifyIndex] = self.input_values[self.input_index]
-                    self.action_list.append(('INPUT', modifyIndex, self.input_index, self.input_code[modifyIndex]))
+                    self.action_list.append(('3', modifyIndex, self.input_index, self.input_code[modifyIndex]))
                     self.input_index += 1
                 elif action_number == '4':
                     self.output_index += 1
                     self.output_values.append(argument_list[0])
-                    self.action_list.append(('OUTPUT', self.output_index, argument_list[0]))
+                    self.action_list.append(('4', self.output_index, argument_list[0]))
                     return self.output_values[self.output_index]
                     # print('OUTPUT: '+str(argument_list[0]))
                 elif action_number == '1':
+                    self.action_list.append(('1', modifyIndex, self.input_code[modifyIndex], argument_list[0] + argument_list[1]))
                     self.input_code[modifyIndex] = argument_list[0] + argument_list[1]
-                    self.action_list.append(('ICWRITE_SUM', modifyIndex, self.input_code[modifyIndex]))
                 elif action_number == '2':
+                    self.action_list.append(('2', modifyIndex, self.input_code[modifyIndex], argument_list[0] * argument_list[1]))
                     self.input_code[modifyIndex] = argument_list[0] * argument_list[1]
-                    self.action_list.append(('ICWRITE_PRODUCT', modifyIndex, self.input_code[modifyIndex]))
                 elif action_number == '7':
+                    self.action_list.append(('7', modifyIndex, self.input_code[modifyIndex], int(argument_list[0] < argument_list[1])))
                     self.input_code[modifyIndex] = int(argument_list[0] < argument_list[1])
-                    self.action_list.append(('ICWRITE_COMPARISON_GT', modifyIndex, self.input_code[modifyIndex]))
                 elif action_number == '8':
+                    self.action_list.append(('8', modifyIndex, self.input_code[modifyIndex], int(argument_list[0] == argument_list[1])))
                     self.input_code[modifyIndex] = int(argument_list[0] == argument_list[1])
-                    self.action_list.append(('ICWRITE_COMPARISON_EQ', modifyIndex, self.input_code[modifyIndex]))
                 elif action_number == '5':
                     if argument_list[0] != 0:
-                        self.action_list.append(('INDEX_CHANGE_NEZERO', self.current_index, argument_list[1]))
+                        self.action_list.append(('5', 'YES_OP', self.current_index, argument_list[1]))
                         self.current_index = argument_list[1]
+                    else:
+                        self.action_list.append(('5', 'NO_OP'))
                 elif action_number == '6':
                     if argument_list[0] == 0:
-                        self.action_list.append(('INDEX_CHANGE_EQZERO', self.current_index, argument_list[1]))
+                        self.action_list.append(('6', 'YES_OP', self.current_index, argument_list[1]))
                         self.current_index = argument_list[1]
+                    else:
+                        self.action_list.append(('6', 'NO_OP'))
 
                 else:
                     print("FAIL FAIL FAIL ACK")

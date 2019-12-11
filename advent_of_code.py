@@ -1,5 +1,29 @@
 # import pandas as pd
-# import numpy as np
+import numpy as np
+
+with open('/Users/relyea/data/input.txt') as input_file:
+    inpstring = input_file.readlines()
+
+inpstring = inpstring[0].strip()
+v_size = 6
+h_size = 25
+
+im = np.array([int(char) for char in inpstring])
+im = im.reshape((int(len(inpstring)/v_size/h_size),v_size,h_size))
+layer = np.argmin(np.sum(im == 0,axis=(1,2)))
+thesum = sum(im[layer,:,:] == 1) * sum(im[layer,:,:]==2)
+
+newimage = np.zeros((v_size,h_size))
+for ii in range(h_size):
+    for jj in range(v_size):
+        newimage[jj, ii] = im[im[:,jj, ii] != 2,jj, ii][0]
+
+
+
+
+
+
+
 
 with open('/Users/relyea/data/input.txt') as input_file:
     inpstring = input_file.readlines()
