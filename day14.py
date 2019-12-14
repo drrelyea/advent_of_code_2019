@@ -1,10 +1,20 @@
-# we might want to be able to assess the state of a VM
-# the input codes might all be linked
-# omg they might want a rewind capability... AAAAAAA
 import numpy as np
+from collections import defaultdict
 
 with open('/Users/relyea/data/input.txt') as input_file:
     inpfile = input_file.readlines()
+
+# fill a dictionary with all the formulas
+formuladict = {}
+for line in inpfile:
+    output = line.split(' => ')[1].strip()
+    inputs = line.split(' => ')[0]
+    inputlist = inputs.split(',')
+    for theinput in inputlist:
+        if output not in formuladict:
+            formuladict[output] = [theinput.strip()]
+        else:
+            formuladict[output].append(theinput.strip())
 
 
 class oreGetter(object):
@@ -73,48 +83,18 @@ class oreGetter(object):
         return num_ore
 
 
-
-# print('number_and_element_in_formula', number_and_element_in_formula)
-# for field in fulldict[number_and_element_in_formula]:
-#     print('FIELD', field)
-#     if 'ORE' in field:
-#         print('ORE')
-#         print(int(field.split(' ')[0]),int(number_and_element_in_formula.split(' ')[0]),int(field.split(' ')[0])/int(number_and_element_in_formula.split(' ')[0]))
-#         num_ore += int(field.split(' ')[0])/int(number_and_element_in_formula.split(' ')[0])
-#     else:
-#         the_num_ore = get_num_ore(field.split(' ')[1], fulldict)
-#         print('NOT ORE')
-#         print(the_num_ore,int(field.split(' ')[0]),int(number_and_element_in_formula.split(' ')[0]))
-#         print(the_num_ore*int(field.split(' ')[0])/int(number_and_element_in_formula.split(' ')[0]))
-#         num_ore += the_num_ore*int(field.split(' ')[0])/int(number_and_element_in_formula.split(' ')[0])
-# return num_ore
-
-formuladict = {}
-for line in inpfile:
-    output = line.split(' => ')[1].strip()
-    inputs = line.split(' => ')[0]
-    inputlist = inputs.split(',')
-    for theinput in inputlist:
-        if output not in formuladict:
-            formuladict[output] = [theinput.strip()]
-        else:
-            formuladict[output].append(theinput.strip())
-
-from collections import defaultdict
 ore_getter = oreGetter(formuladict)
 ore_for_1_fuel = ore_getter.get_num_ore('1 FUEL')
+# this produces 483766, which is correct
 
 n_ore = 1e12
 approxnum = int(n_ore // ore_for_1_fuel)
 not_converged = True
 while not_converged:
+    ore_getter.reset_surplus()
     ore_needed = ore_getter.get_num_ore(str(approxnum)+' FUEL')
     approxnum = np.int(approxnum * 1e12/ore_needed)
     print(ore_needed, approxnum)
     aa = input()
     ore_getter.reset_surplus()
     ore_needed = ore_getter.get_num_ore(str(approxnum)+' FUEL')
-
-# so the way to do this properly
-#  you have to find the things that convert to ore
-#  then you ned to convert everything to them
