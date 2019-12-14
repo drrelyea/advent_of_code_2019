@@ -29,6 +29,15 @@ opcode_argtypes = {
     '99': ()
 }
 
+# class opcode_input(object):
+#     def __init__(self, input = None):
+#         if input is not None:
+#             self.input = [input]
+#         else:
+#             self.input = []
+#     def update(input):
+#         self.input = [input]
+
 class opcode_computer(object):
     def __init__(self, input_code, thephase=None):
         self.current_index = 0
@@ -40,12 +49,21 @@ class opcode_computer(object):
         self.output_values = []
         self.output_index = -1
         self.relative_base = 0
+        self.unchanged_input = True
 
         self.phase_received = False        
         self.action_list = []
 
     def input(self, inputlist: list):
         self.input_values += inputlist
+    
+    def input_no_changes(self, inputlist: list):
+        if not self.unchanged_input:
+            print(inputlist)
+            self.input_values += inputlist
+            self.unchanged_input = True
+        else:
+            self.input_values[-1] = inputlist[0]
     
     def parseArguments(self, opcode, action_number):
         output_arguments = []
@@ -91,6 +109,8 @@ class opcode_computer(object):
                     self.input_code[argument_list[0]] = self.input_values[self.input_index]
                     # self.action_list.append(('INPUT', argument_list[0], self.input_index, self.input_code[argument_list[0]]))
                     self.input_index += 1
+                    self.unchanged_input = False
+                    print('READ')
                 elif action_number == '04':
                     self.output_index += 1
                     self.output_values.append(argument_list[0])
