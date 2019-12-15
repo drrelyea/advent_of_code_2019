@@ -110,7 +110,7 @@ class opcode_computer(object):
                     # self.action_list.append(('INPUT', argument_list[0], self.input_index, self.input_code[argument_list[0]]))
                     self.input_index += 1
                     self.unchanged_input = False
-                    print('READ')
+                    # print('READ')
                 elif action_number == '04':
                     self.output_index += 1
                     self.output_values.append(argument_list[0])
