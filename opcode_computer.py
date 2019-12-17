@@ -100,7 +100,7 @@ class opcode_computer(object):
             if action_number == '99':
                 self.action_list.append(('END'))
                 # print('DONE')
-                return (100,100)
+                return 'DONE'
             else:
                 argument_list = self.parseArguments(opcode, action_number)
                 # print('TEST: ', self.current_index, opcode, argument_list, self.input_values)
@@ -115,7 +115,7 @@ class opcode_computer(object):
                     self.output_index += 1
                     self.output_values.append(argument_list[0])
                     # self.action_list.append(('OUTPUT', self.output_index, argument_list[0]))
-                    return self.output_values[self.output_index]
+                    yield self.output_values[self.output_index]
                     # print('OUTPUT: '+str(argument_list[0]))
                 elif action_number == '01':
                     self.input_code[argument_list[2]] = argument_list[0] + argument_list[1]
