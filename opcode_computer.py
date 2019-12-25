@@ -53,6 +53,7 @@ class opcode_computer(object):
 
         self.phase_received = False        
         self.action_list = []
+        # selt.state = 'NONE'
 
     def input(self, inputlist: list):
         self.input_values += inputlist
@@ -104,18 +105,23 @@ class opcode_computer(object):
             else:
                 argument_list = self.parseArguments(opcode, action_number)
                 # print('TEST: ', self.current_index, opcode, argument_list, self.input_values)
+                self.reserve_current_index = self.current_index
                 self.current_index = self.current_index + len(opcode_argtypes[action_number]) + 1
                 if action_number == '03':
-                    self.input_code[argument_list[0]] = self.input_values[self.input_index]
-                    # self.action_list.append(('INPUT', argument_list[0], self.input_index, self.input_code[argument_list[0]]))
-                    self.input_index += 1
-                    self.unchanged_input = False
-                    # print('READ')
+                    if self.input_index >= len(self.input_values):
+                        self.current_index = self.reserve_current_index
+                        return 'READING'
+                    else:
+                        self.input_code[argument_list[0]] = self.input_values[self.input_index]
+                        # self.action_list.append(('INPUT', argument_list[0], self.input_index, self.input_code[argument_list[0]]))
+                        self.input_index += 1
+                        self.unchanged_input = False
+                        # print('READ')
                 elif action_number == '04':
                     self.output_index += 1
                     self.output_values.append(argument_list[0])
                     # self.action_list.append(('OUTPUT', self.output_index, argument_list[0]))
-                    yield self.output_values[self.output_index]
+                    return self.output_values[self.output_index]
                     # print('OUTPUT: '+str(argument_list[0]))
                 elif action_number == '01':
                     self.input_code[argument_list[2]] = argument_list[0] + argument_list[1]

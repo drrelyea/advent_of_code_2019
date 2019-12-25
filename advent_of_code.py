@@ -1,6 +1,39 @@
 # import pandas as pd
 import numpy as np
 
+
+"""
+lessons about my code:
+your recursion sucks - work on this
+you turned L12 into L6,L6 - why? it's because you linked the L and the 12
+NO HARDCODED CONSTANTS as they will change and you'll have a bug
+get your indices straight when you have a list of lists! STICK TO A CONVENTION
+upgrade your code to handle basic situations
+    what happens when you don't have an input
+    what happens when the input should overwrite instead of queue (or vv)
+get ALL the requirements - you lost a lot of time missing specific cases that were mentioned
+pay attention to signs - you lost an hour forgetting about them
+pay attention to order - your brain sometimes assumes order AB and then order BA
+    this is easiest if you create a data structure to handle it
+
+BAD THINGS FROM AOC:
+a lot of the solutions assume a limiting case trick
+it does not teach you to code APIs
+it does not reward you for abstraction layers
+it teaches you to assume the problem is simple and solve it that way (like mazes that are acyclic)
+"""
+
+
+
+
+
+
+
+
+
+
+
+
 with open('/Users/relyea/data/input.txt') as input_file:
     inpstring = input_file.readlines()
 

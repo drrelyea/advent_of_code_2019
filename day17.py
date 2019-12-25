@@ -99,5 +99,5 @@ for line in themap:
     op.input(asciisequence)
 op.input([110,10])
 
-for aa in op.run()
+for aa in op.run():
     print(aa)
